@@ -51,20 +51,20 @@ function testTokening(profile) {
         tokenRecords.map(function(tokenRecord) {
             try {
                 tokenVerifier.verify(tokenRecord.token, tokenRecord.data.payload.issuer.publicKey)
-            } catch(err) {
+            } catch (err) {
                 console.log(err.stack)
                 tokensVerified = false
             }
         })
         t.equal(tokensVerified, true, 'all tokens should be valid')
-        //console.log(JSON.stringify(tokenRecords, null, 2))
+            //console.log(JSON.stringify(tokenRecords, null, 2))
     })
 
     test('tokensToProfile', function(t) {
         t.plan(2)
 
         var recoveredProfile = getProfileFromTokens(tokenRecords, publicKeychain)
-        //console.log(recoveredProfile)
+            //console.log(recoveredProfile)
         t.ok(recoveredProfile, 'profile should have been reconstructed')
         t.equal(JSON.stringify(recoveredProfile), JSON.stringify(profile), 'profile should equal the reference')
     })
@@ -110,7 +110,7 @@ function testFileCreation(objectType, username, profile) {
         }]
         zoneFile = createZoneFile(username, publicKeychain, hostUrls, checksums)
         t.ok(zoneFile, 'zone file should have been created')
-        //console.log(JSON.stringify(zoneFile, null, 4))
+            //console.log(JSON.stringify(zoneFile, null, 4))
 
         writeDocFile(objectType + '/zone-file.md', zoneFile)
     })
@@ -120,7 +120,7 @@ function testFileCreation(objectType, username, profile) {
 
         tokenFile = signProfileTokens(profile, privateKeychain)
         t.ok(tokenFile, 'token file should have been created')
-        //console.log(JSON.stringify(tokenRecords, null, 4))
+            //console.log(JSON.stringify(tokenRecords, null, 4))
 
         writeDocFile(objectType + '/token-file.md', tokenFile)
     })
@@ -130,7 +130,7 @@ function testFileCreation(objectType, username, profile) {
 
         profile = getProfileFromTokens(tokenFile, publicKeychain)
         t.ok(profile, 'profile should have been constructed')
-        //console.log(JSON.stringify(profile, null, 4))
+            //console.log(JSON.stringify(profile, null, 4))
 
         writeDocFile(objectType + '/profile.md', profile)
     })
@@ -144,7 +144,7 @@ function testLegacyFormat() {
 
         var person = Person.fromLegacyFormat(v2Profile)
         t.ok(person.profile, 'profile should have been converted')
-        //console.log(profile)
+            //console.log(profile)
     })
 }
 
@@ -209,7 +209,9 @@ function testPersonProfile() {
 
     test('setAppRecord', function(t) {
         t.plan(2)
-        person.setAppRecord('openbazaar', {'guid': '34e57db64ce7435ab0f759oca31386527c670bd1'})
+        person.setAppRecord('openbazaar', {
+            'guid': '34e57db64ce7435ab0f759oca31386527c670bd1'
+        })
         t.equal(person.profile.account.length, 5, 'there should be 5 accounts')
         t.ok(person.profile.account[4])
     })
@@ -220,11 +222,49 @@ function testPersonProfile() {
         t.ok(person.profile.website, 'website should have been set')
     })
 
+    test('setTaxID', function(t) {
+        t.plan(1)
+        person.setTaxID('000-00-0000')
+        t.ok(person.profile.taxID, 'taxID should have been set')
+    })
+
+    test('setGender', function(t) {
+        t.plan(1)
+        person.setGender('Male')
+        t.ok(person.profile.gender, 'gender should have been set')
+    })
+
+    test('setHeight', function(t) {
+        t.plan(1)
+        person.setHeight('5')
+        t.ok(person.profile.height, 'height should have been set')
+    })
+
+    test('setWeight', function(t) {
+        t.plan(1)
+        person.setWeight('50')
+        t.ok(person.profile.weight, 'weight should have been set')
+    })
+
     test('setEmployer', function(t) {
         t.plan(1)
         person.setEmployer('onename.id')
         person.setEmployer('blockstack.id')
         t.equal(person.profile.worksFor.length, 2, 'there should be 2 employers')
+    })
+
+    test('setDeathDate', function(t) {
+        t.plan(2)
+        person.setDeathDate('1973-01-01')
+        t.ok(person.profile.deathDate, 'deathdate should have been set')
+        t.equal(person.profile.deathDate, '1973-01-01', 'deathdate should have been properly set')
+    })
+
+    test('setAffiliation', function(t) {
+        t.plan(1)
+        person.setAffiliation('onename.id')
+        person.setAffiliation('blockstack.id')
+        t.equal(person.profile.affiliation.length, 2, 'there should be 2 affiliation')
     })
 
     test('setFriend', function(t) {
@@ -234,11 +274,46 @@ function testPersonProfile() {
         t.equal(person.profile.knows.length, 2, 'there should be 2 friends')
     })
 
+    test('setChildren', function(t) {
+        t.plan(1)
+        person.setChildren('muneeb.id')
+        person.setChildren('naval.id')
+        t.equal(person.profile.children.length, 2, 'there should be 2 children')
+    })
+
     test('setAddress', function(t) {
         t.plan(2)
         person.setAddress('United States', 'New York, NY')
         t.ok(person.profile.address, 'address should have been set')
         t.equal(person.profile.address.addressLocality, 'New York, NY', 'address locality should have been properly set')
+    })
+
+     test('setNationality', function(t) {
+        t.plan(2)
+        person.setNationality('United States')
+        t.ok(person.profile.nationality, 'nationality should have been set')
+        t.equal(person.profile.nationality.addressCountry, 'United States', 'address country should have been properly set')
+    })
+
+    test('setBirthPlace', function(t) {
+        t.plan(2)
+        person.setBirthPlace('United States', 'New York, NY')
+        t.ok(person.profile.birthPlace, 'address should have been set')
+        t.equal(person.profile.birthPlace.addressLocality, 'New York, NY', 'address locality should have been properly set')
+    })
+
+    test('setDeathPlace', function(t) {
+        t.plan(2)
+        person.setDeathPlace('United States', 'New York, NY')
+        t.ok(person.profile.deathPlace, 'address should have been set')
+        t.equal(person.profile.deathPlace.addressLocality, 'New York, NY', 'address locality should have been properly set')
+    })
+
+    test('setBirthDate', function(t) {
+        t.plan(2)
+        person.setBirthDate('1973-01-01')
+        t.ok(person.profile.birthDate, 'birthdate should have been set')
+        t.equal(person.profile.birthDate, '1973-01-01', 'birthdate should have been properly set')
     })
 
     test('fromLegacyFormat', function(t) {
